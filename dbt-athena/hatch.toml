@@ -11,8 +11,8 @@ pre-install-commands = [
     "pip install -e ../dbt-tests-adapter",
 ]
 dependencies = [
-    "dbt-common @ git+https://github.com//SOVALINUX/dbt-common@EPMPLXD-9509_dbt_1.12.5",
-    "dbt-core @ git+https://github.com/SOVALINUX/dbt-core@EPMPLXD-9509_dbt_1.12.5",
+    "dbt-common @ git+https://github.com//SOVALINUX/dbt-common@v1.39.0+epam.1",
+    "dbt-core @ git+https://github.com/SOVALINUX/dbt-core@v1.12.5+epam.2#subdirectory=core",
     "ddtrace==2.3.0",
     "moto~=5.0.13",
     "pre-commit==3.7.0",
