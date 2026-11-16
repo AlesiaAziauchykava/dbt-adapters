@@ -12,6 +12,8 @@
   {% set force_batch = config.get('force_batch', False) | as_bool -%}
   {% set unique_tmp_table_suffix = config.get('unique_tmp_table_suffix', False) | as_bool -%}
   {% set temp_schema = config.get('temp_schema') %}
+  {% set incremental_source_name = config.get('incremental_source_name') -%}
+  {% set incremental_source_table_name = config.get('incremental_source_table_name') -%}
   {% set target_relation = this.incorporate(type='table') %}
   {% set existing_relation = load_relation(this) %}
   {% set s3_data_naming = config.get('s3_data_naming', default=target.s3_data_naming) %}
@@ -44,6 +46,14 @@
       -- If no partitions are used with insert_overwrite, we fall back to append mode.
       {% set strategy = 'append' %}
     {% endif %}
+  {% endif %}
+
+  -- Capture S3 ETags before model runs (outside transaction - S3 operations)
+  -- Only if incremental source is configured (optional feature)
+  {% if existing_relation is not none and incremental_source_name and incremental_source_table_name %}
+    {% set initial_s3_etags = capture_s3_etags(incremental_source_name, incremental_source_table_name) %}
+  {% else %}
+    {% set initial_s3_etags = {} %}
   {% endif %}
 
   {{ run_hooks(pre_hooks, inside_transaction=False) }}
@@ -235,6 +245,18 @@
   {% endfor %}
 
   {{ run_hooks(post_hooks, inside_transaction=False) }}
+
+  -- Delete unchanged S3 files (outside transaction - S3 operations)
+  -- Only run if incremental source is configured (optional feature)
+  {% set cleanup_target = var('increment_cleanup_target_name', none) %}
+  {% if incremental_source_name and incremental_source_table_name %}
+    {% if cleanup_target and target.name == cleanup_target %}
+      {% set cleanup_result = cleanup_s3_etags(initial_s3_etags, incremental_source_name, incremental_source_table_name) %}
+      {{ log("S3 cleanup result: " ~ cleanup_result['deleted'] ~ " deleted, " ~ cleanup_result['skipped'] ~ " skipped", info=true) }}
+    {% elif cleanup_target %}
+      {{ log("S3 cleanup skipped: current target '" ~ target.name ~ "' does not match configured target '" ~ cleanup_target ~ "'", info=true) }}
+    {% endif %}
+  {% endif %}
 
   {% if lf_tags_config is not none %}
     {{ adapter.add_lf_tags(target_relation, lf_tags_config) }}

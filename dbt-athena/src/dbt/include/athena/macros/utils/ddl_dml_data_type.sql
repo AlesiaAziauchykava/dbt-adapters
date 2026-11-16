@@ -3,7 +3,7 @@
 {% macro ddl_data_type(col_type, table_type = 'hive') -%}
   -- transform varchar
   {% set re = modules.re %}
-  {% set data_type = re.sub('(?:varchar|character varying)(?:\(\d+\))?', 'string', col_type) %}
+  {% set data_type = re.sub('(?:varchar|character varying)(?:\\(\\d+\\))?', 'string', col_type) %}
 
   -- transform array and map
   {%- if 'array' in data_type or 'map' in data_type -%}
