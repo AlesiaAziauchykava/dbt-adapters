@@ -56,12 +56,12 @@ check-sdist = [
 
 [envs.ci]
 pre-install-commands = [
-    "pip install dbt-core@git+https://github.com/SOVALINUX/dbt-core@EPMPLXD-9509_dbt_1.12.5",
+    "pip install dbt-core@git+https://github.com/SOVALINUX/dbt-core@v1.12.5+epam.2#subdirectory=core",
     "pip install -e ../dbt-adapters",
     "pip install -e ../dbt-tests-adapter",
 ]
 dependencies = [
-    "dbt-common @ git+https://github.com/SOVALINUX/dbt-common.git@EPMPLXD-9509_dbt_1.12.5",
+    "dbt-common @ git+https://github.com/SOVALINUX/dbt-common.git@v1.39.0+epam.1",
     "ddtrace==2.3.0",
     "moto~=5.0.13",
     "pyparsing~=3.1.4",

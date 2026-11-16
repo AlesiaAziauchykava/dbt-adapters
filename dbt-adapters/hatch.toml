@@ -51,7 +51,7 @@ protobuf = "protoc -I=./dbt/adapters/events --python_out=./dbt/adapters/events .
 
 [envs.ci]
 dependencies = [
-    "dbt-common @ git+https://github.com/SOVALINUX/dbt-common.git@EPMPLXD-9509_dbt_1.12.5",
+    "dbt-common @ git+https://github.com/SOVALINUX/dbt-common.git@v1.39.0+epam.1",
     "ddtrace<3.18",
     "pytest>=7.0,<8.0",
     "pytest-dotenv",
